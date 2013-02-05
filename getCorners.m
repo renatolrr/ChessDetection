@@ -3,7 +3,7 @@ function corners = getCorners(img,lines)
     nLines =  length(lines);
     [bottomLeftCorner, bottomRightCorner] = getBottomCorners(img);
     
-    distanceThreshold = 25;   
+    distanceThreshold = 180;   
 
     for k=1:nLines
         point1 = lines(k).point1;
@@ -13,6 +13,8 @@ function corners = getCorners(img,lines)
         point2distL = sqrt(sum((point2 - bottomLeftCorner) .^ 2));
         point2distR = sqrt(sum((point2 - bottomRightCorner) .^ 2));
 
+        fprintf('DistR1: %f | DistR2: %f | DistL1: %f | DistL2: %f\n', point1distR, point2distR, point1distL, point2distL)
+        
         if(point1distL < distanceThreshold && point2distR > distanceThreshold)
             topLeftCorner = point2;
         elseif(point1distR < distanceThreshold && point2distL > distanceThreshold)

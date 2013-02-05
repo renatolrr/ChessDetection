@@ -11,7 +11,7 @@ b_line2 = line2(2)-m_line2*line2(1);
 b = [b_line1;b_line2];
 a=[1 -m_line1; 1 -m_line2];
 % solve system of equations
-xy = a\b;
+xy = a \ b;
 x=xy(2); y=xy(1);
 
 % create min and max thresholds since the calculations above were done

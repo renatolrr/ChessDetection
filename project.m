@@ -7,8 +7,8 @@ clc;
 % Rev. #1: Only tested (and works) for 'supereasy.jpg' which represents 
 % the image of a board we will use.
 angle = 80; % any angle to rotate board for testing
-% img = imread('supereasy.jpg');
-img = imread('supereasywithbluedot.jpg');
+% img = imread('image/supereasywithbluedot.jpg');
+img = imread('image/test.png');
 img =imresize(img,0.5,'bilinear');
 img = imrotate(img, angle);
 
@@ -17,23 +17,19 @@ imtool(img);
 
 bw = im2bw(img); 
 bwedge = edge(bw,'canny');
-% imshow(bwedge);
 
 se = strel('line',20,mod(angle+45,360)); % angle+45 for line structuring element
 bwedge = imdilate(bwedge,se);
 [H,theta,rho]=hough(bwedge);
 P = houghpeaks(H,22); % 18 lines from a chess board + 4 for outside
 lines = houghlines(bwedge,theta,rho,P);
-% figure, imshow(img), hold on
+figure, imshow(img), hold on
 
 nLines =  length(lines);
-
-corners = getCorners(img,lines);
 
  for k = 1:nLines
      
      xy = [lines(k).point1; lines(k).point2];
-     disp(' '); 
      
      plot(xy(:,1),xy(:,2),'LineWidth',3,'Color','green');
      % Plot beginnings and ends of lines
@@ -42,6 +38,7 @@ corners = getCorners(img,lines);
 
      % intersection detection. TODO: could just put this in the
      % findintersects file and concat the intersections
+     line1 = [xy(1,1) xy(1,2) xy(2,1) xy(2,2)];
      for o = 1:length(lines)
         if o ~= k
            az =  [lines(o).point1;lines(o).point2];
@@ -54,6 +51,7 @@ corners = getCorners(img,lines);
     end
  end
 
+ corners = getCorners(img,lines);
 [img,corners] = recoverParrallelLines(img,corners);
 
-imtool(img);
+% imtool(img);
