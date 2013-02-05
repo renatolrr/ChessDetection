@@ -13,7 +13,7 @@ img =imresize(img,0.5,'bilinear');
 img = imrotate(img, angle);
 
 
-imtool(img);
+% imtool(img);
 
 bw = im2bw(img); 
 bwedge = edge(bw,'canny');
@@ -54,4 +54,4 @@ nLines =  length(lines);
  corners = getCorners(img,lines);
 [img,corners] = recoverParrallelLines(img,corners);
 
-% imtool(img);
+imtool(img);
