@@ -78,14 +78,22 @@ function corners = getCorners(img,lines)
         
         if(point1InLeftCorner & ~point2InRightCorner)
             topLeftCorner = point2;
+            fprintf('Top Left Corner Found!');
         elseif(point1InRightCorner & ~point2InLeftCorner)
             topRightCorner = point2;
+            fprintf('Top Right Corner Found!');
         elseif(point2InLeftCorner & ~point1InRightCorner)
             topLeftCorner = point1;
-        elseif(point2InRightCorner & ~point1InRightCorner)
+            fprintf('Top Left Corner Found!');
+        elseif(point2InRightCorner & ~point1InLeftCorner)
             topRightCorner = point1;
+            fprintf('Top Right Corner Found!');
+            
         end
     end
+    topLeftCorner
+    topRightCorner
+    
     
     corners = [bottomRightCorner; topRightCorner; bottomLeftCorner; topLeftCorner];
     
@@ -116,5 +124,4 @@ function corner = getCorner(mask)
     
     corner(1) = center(1).Centroid(1);
     corner(2) = center(1).Centroid(2);
-
 end

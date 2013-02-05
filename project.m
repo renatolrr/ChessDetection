@@ -7,9 +7,9 @@ clc;
 % Rev. #1: Only tested (and works) for 'supereasy.jpg' which represents 
 % the image of a board we will use.
 angle = 80; % any angle to rotate board for testing
-% img = imread('image/supereasywithbluedot.jpg');
-img = imread('image/test.png');
-img =imresize(img,0.5,'bilinear');
+img = imread('image/supereasywithbluedot.jpg');
+% img = imread('image/test.png');
+img = imresize(img,0.5,'bilinear');
 img = imrotate(img, angle);
 
 
@@ -51,6 +51,8 @@ nLines =  length(lines);
     end
  end
 
+ imtool(img);
+ 
  corners = getCorners(img,lines);
 [img,corners] = recoverParrallelLines(img,corners);
 
