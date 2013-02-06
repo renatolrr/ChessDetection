@@ -6,10 +6,10 @@ clc;
 % and a line hough transform to detect edges of the board.
 % Rev. #1: Only tested (and works) for 'supereasy.jpg' which represents 
 % the image of a board we will use.
-angle = 80; % any angle to rotate board for testing
-img = imread('image/supereasywithbluedot.jpg');
-% img = imread('image/test.png');
-img = imresize(img,0.5,'bilinear');
+angle = 20; % any angle to rotate board for testing
+% img = imread('image/supereasywithbluedot.jpg');
+img = imread('image/test.png');
+img = imresize(img, 1.0,'bilinear');
 img = imrotate(img, angle);
 
 
@@ -19,7 +19,7 @@ bw = im2bw(img);
 bwedge = edge(bw,'canny');
 
 se = strel('line',20,mod(angle+45,360)); % angle+45 for line structuring element
-bwedge = imdilate(bwedge,se);
+bwedge = imclose(imdilate(bwedge,se),se);
 [H,theta,rho]=hough(bwedge);
 P = houghpeaks(H,22); % 18 lines from a chess board + 4 for outside
 lines = houghlines(bwedge,theta,rho,P);
@@ -51,9 +51,9 @@ nLines =  length(lines);
     end
  end
 
- imtool(img);
+imtool(img);
  
- corners = getCorners(img,lines);
+corners = getCorners(img,lines);
 [img,corners] = recoverParrallelLines(img,corners);
 
 imtool(img);

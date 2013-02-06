@@ -88,12 +88,9 @@ function corners = getCorners(img,lines)
         elseif(point2InRightCorner & ~point1InLeftCorner)
             topRightCorner = point1;
             fprintf('Top Right Corner Found!');
-            
         end
     end
-    topLeftCorner
-    topRightCorner
-    
+
     
     corners = [bottomRightCorner; topRightCorner; bottomLeftCorner; topLeftCorner];
     
