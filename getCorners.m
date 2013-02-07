@@ -90,7 +90,8 @@ function corners = getCorners(img,lines)
             fprintf('Top Right Corner Found!');
         end
     end
-
+    
+    fprintf('\nTop Left: [%.f, %.f]  Top Right: [%.f, %.f]\n', topLeftCorner(1), topLeftCorner(2), topRightCorner(1), topRightCorner(2));
     
     corners = [bottomRightCorner; topRightCorner; bottomLeftCorner; topLeftCorner];
     
@@ -107,15 +108,22 @@ function [leftcentroid, rightcentroid]=getBottomCorners(img)
     leftmask = hsvImg(:,:,1)>0.35 & hsvImg(:,:,1)<0.40;
     rightmask = hsvImg(:,:,1)>0.95 & hsvImg(:,:,1)<1.00;
     
+    
     leftcentroid = getCorner(leftmask);
     rightcentroid = getCorner(rightmask);
 
-
+    
 end
 
 function corner = getCorner(mask)
 
-    mask = imerode(mask,ones(7));
+    mask = bwlabel(mask);
+
+    while(size(unique(mask(mask > 0)), 1) > 1)
+        mask = imerode(mask,ones(3));
+    end
+    
+    mask = im2bw(mask);
     
     center = regionprops(mask,'centroid');
     
