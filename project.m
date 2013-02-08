@@ -6,9 +6,9 @@ clc;
 % and a line hough transform to detect edges of the board.
 % Rev. #1: Only tested (and works) for 'supereasy.jpg' which represents 
 % the image of a board we will use.
-angle = 20; % any angle to rotate board for testing
+angle = 0; % any angle to rotate board for testing
 % img = imread('image/supereasywithbluedot.jpg');
-img = imread('image/test.png');
+img = imread('image/easy_pieces3.jpg');
 img = imresize(img, 1.0,'bilinear');
 img = imrotate(img, angle);
 
