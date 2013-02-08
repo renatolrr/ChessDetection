@@ -1,110 +1,73 @@
 function corners = getCorners(img,lines)
     
+
+    distanceThreshold = 1;
     nLines =  length(lines);
     [bottomLeftCorner, bottomRightCorner] = getBottomCorners(img);
     
-    closestPointL = 0; % closest
-    secondClosestPointL = 0; % second closest
-    closestPointR = 0;
-    secondClosestPointR = 0;
+    distancesFromBL = arrayfun(@(c)(distanceFromPointToLine(bottomLeftCorner,c)),lines);
+    distancesFromBR = arrayfun(@(c)(distanceFromPointToLine(bottomRightCorner,c)),lines);
     
-    closestDistanceL = max(size(img)); 
-    closestDistanceR = max(size(img));
-    secondClosestDistanceL = max(size(img)); 
-    secondClosestDistanceR = max(size(img));
+    blLines = lines(distancesFromBL<distanceThreshold);
+    brLines = lines(distancesFromBR<distanceThreshold);
     
-    for k=1:nLines
-        point1 = lines(k).point1;
-        point2 = lines(k).point2;
-        
-        point1distL = getDistance(point1, bottomLeftCorner);
-        point1distR = getDistance(point1, bottomRightCorner);
-        point2distL = getDistance(point2, bottomLeftCorner);
-        point2distR = getDistance(point2, bottomRightCorner);
-        
-        if(point1distL < secondClosestDistanceL)
-            if(point1distL < closestDistanceL)
-                secondClosestPointL = closestPointL;
-                secondClosestDistanceL = closestDistanceL;
-                closestPointL = point1;
-                closestDistanceL = point1distL;
-            else
-                secondClosestPointL = point1;
-                secondClosestDistanceL = point1distL;
-            end
-        elseif(point2distL < secondClosestDistanceL)
-            if(point2distL < closestDistanceL)
-                secondClosestPointL = closestPointL;
-                secondClosestDistanceL = closestDistanceL;
-                closestPointL = point2;
-                closestDistanceL = point1distL;
-            else
-                secondClosestPointL = point2;
-                secondClosestDistanceL = point1distL;
-            end
-        end
-        
-        if(point1distR < secondClosestDistanceR)
-            if(point1distR < closestDistanceR)
-                secondClosestPointR = closestPointR;
-                secondClosestDistanceR = closestDistanceR;
-                closestPointR = point1;
-                closestDistanceR = point1distR;
-            else
-                secondClosestPointR = point1;
-                secondClosestDistanceR = point1distR;
-            end
-        elseif(point2distR < secondClosestDistanceR)
-            if(point2distR < closestDistanceR)    
-                secondClosestPointR = closestPointR;
-                secondClosestDistanceR = closestDistanceR;
-                closestPointR = point2;
-                closestDistanceR = point2distR;
-            else
-                secondClosestPointR = point2;
-                secondClosestDistanceR = point2distR;
-            end
-        end
-    end
+    % Checks which is the bottom line
+    a = isSameLine(blLines(1),brLines(1));
+    b = isSameLine(blLines(1),brLines(2));
+    c = isSameLine(blLines(2),brLines(1));
+    d = isSameLine(blLines(2),brLines(2));
     
-    for k=1:nLines
-        point1 = lines(k).point1;
-        point2 = lines(k).point2;
-        
-        point1InLeftCorner = (point1 == closestPointL | point1 == secondClosestPointL);
-        point1InRightCorner = (point1 == closestPointR | point1 == secondClosestPointR);   
-        point2InLeftCorner = (point2 == closestPointL | point2 == secondClosestPointL);
-        point2InRightCorner = (point2 == closestPointR | point2 == secondClosestPointR);
-        
-        if(point1InLeftCorner & ~point2InRightCorner)
-            topLeftCorner = point2;
-            fprintf('Top Left Corner Found!');
-        elseif(point1InRightCorner & ~point2InLeftCorner)
-            topRightCorner = point2;
-            fprintf('Top Right Corner Found!');
-        elseif(point2InLeftCorner & ~point1InRightCorner)
-            topLeftCorner = point1;
-            fprintf('Top Left Corner Found!');
-        elseif(point2InRightCorner & ~point1InLeftCorner)
-            topRightCorner = point1;
-            fprintf('Top Right Corner Found!');
-        end
-    end
-
+    lineMatrix = [blLines; brLines];
+    equalityMatrix = [a b; c d];
+    
+    bottomLine = lineMatrix(equalityMatrix);
+    rightLine = brLines((1-sum(equalityMatrix))==1);
+    leftLine = blLines((1-sum(equalityMatrix,2))==1);
+    
+    % Finds the mid angles (in radians)
+    ThetaL = (leftLine.theta+bottomLine.theta)*pi/360;
+    ThetaR = (rightLine.theta+bottomLine.theta)*pi/360;
+    
+    % Find crossing lines
+    p1 = bottomLeftCorner+10000*[cos(ThetaL) sin(ThetaL)];
+    bl2trLine = [bottomLeftCorner; p1];
+    
+    p2 = bottomRightCorner+10000*[cos(ThetaR) sin(ThetaR)];
+    br2tlLine = [bottomRightCorner; p2];
+    
+    % Find intersections
+    topLeftCorner = findLineIntersection([leftLine.point1;leftLine.point2],br2tlLine);
+    topRightCorner = findLineIntersection([rightLine.point1;rightLine.point2],bl2trLine);
     
     corners = [bottomRightCorner; topRightCorner; bottomLeftCorner; topLeftCorner];
     
 end
 
+function isit = isSameLine(line1,line2)
+    
+    isit = line1.rho==line2.rho && line1.theta==line2.theta;
+    
+end
+
 function dist = getDistance(point1, point2)
-dist = sqrt(sum((point1 - point2) .^ 2));
+    dist = sqrt(sum((point1 - point2) .^ 2));
+end
+
+function d = distanceFromPointToLine(point, line)
+
+    p  = [point 0];
+    l1 = [line.point1 0];
+    l2 = [line.point2 0];
+    
+    d = abs(cross(l2-l1,p-l1))/abs(l2-21);
+
 end
 
 function [leftcentroid, rightcentroid]=getBottomCorners(img)
 
     hsvImg = rgb2hsv(img);
     
-    leftmask = hsvImg(:,:,1)>0.35 & hsvImg(:,:,1)<0.40;
+    leftmask = hsvImg(:,:,1)>0.35 & hsvImg(:,:,1)<0.40 & hsvImg(:,:,2)>0.5;
     rightmask = hsvImg(:,:,1)>0.95 & hsvImg(:,:,1)<1.00;
     
     leftcentroid = getCorner(leftmask);
@@ -116,9 +79,30 @@ end
 function corner = getCorner(mask)
 
     mask = imerode(mask,ones(7));
-    
     center = regionprops(mask,'centroid');
     
     corner(1) = center(1).Centroid(1);
     corner(2) = center(1).Centroid(2);
 end
+
+function point=findLineIntersection(line1, line2)
+    
+    x0 = line1(1,1);
+    y0 = line1(1,2);
+    x1 = line1(2,1);
+    y1 = line1(2,2);
+    
+    
+    x2 = line2(1,1);
+    y2 = line2(1,2);
+    x3 = line2(2,1);
+    y3 = line2(2,2);
+    
+    a = (y1-y0)/(x1-x0);
+    b = (y3-y2)/(x3-x2);
+    
+    point(1) = (a*x0-b*x2-(y0-y2))/(a-b);
+    
+    point(2) = y0+a*(point(1)-x0);
+    
+end 
