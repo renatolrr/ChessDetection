@@ -1,7 +1,7 @@
 function new_lines = removeSimilarLines(lines)
 
     epsilonRho = 60;
-    epsilonTheta = 10;
+    epsilonTheta = 14;
     
     % x = [arrayfun(@(c)(lines(c).rho), 1:22)' arrayfun(@(c)(lines(c).theta), 1:22)']
     
@@ -27,8 +27,9 @@ function new_lines = removeSimilarLines(lines)
         
         while j<nLines
             
-            if(abs(lines(i).rho - lines(j).rho)<epsilonRho && ...
-                abs(lines(i).theta - lines(j).theta)<epsilonTheta)
+            
+            
+            if isSameLine(lines(i),lines(j),epsilonRho,epsilonTheta)  
                 
                 if(lineLengths(i)<lineLengths(j))
                     lines(i) = lines(j);
@@ -49,3 +50,26 @@ function new_lines = removeSimilarLines(lines)
     end
     
     new_lines = lines;
+    
+end
+
+function isit = isSameLine(line1,line2,epsilonRho,epsilonTheta)
+
+    rho1 = line1.rho;
+    theta1 = line1.theta;
+    rho2 = line2.rho;
+    theta2 = line2.theta;
+    isit = 0;
+    
+    if abs(rho1-rho2) < epsilonRho && abs(theta1-theta2)<epsilonTheta
+        
+        isit=1;
+    end
+    
+    if(90-abs(theta1)< epsilonTheta/2 && 90-abs(theta2)< epsilonTheta/2 ...
+            && abs(abs(rho1)-abs(rho2))<epsilonRho)
+        
+        isit = 1;        
+    end 
+
+end

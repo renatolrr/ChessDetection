@@ -12,6 +12,7 @@ for k = 1:nLines
      % Plot beginnings and ends of lines
      plot(xy(1,1),xy(1,2),'x','LineWidth',2,'Color','yellow');
      plot(xy(2,1),xy(2,2),'x','LineWidth',2,'Color','red');
+     
 
      % intersection detection. TODO: could just put this in the
      % findintersects file and concat the intersections

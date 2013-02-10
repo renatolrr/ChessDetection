@@ -25,21 +25,37 @@ function corners = getCorners(img,lines)
     leftLine = blLines((1-sum(equalityMatrix,2))==1);
     
     % Finds the mid angles (in radians)
-    ThetaL = (leftLine.theta+bottomLine.theta)*pi/360;
-    ThetaR = (rightLine.theta+bottomLine.theta)*pi/360;
     
-    % Find crossing lines
-    p1 = bottomLeftCorner+10000*[cos(ThetaL) sin(ThetaL)];
+    ThetaL = (leftLine.theta+bottomLine.theta)*pi/360;
+    p1 = bottomLeftCorner+size(img,1)*[cos(ThetaL) sin(ThetaL)];
+    
+    while(p1(1)>size(img,1) || p1(2)>size(img,2) || p1(1)<0 || p1(2)<0)
+        ThetaL = ThetaL+pi/2;
+        p1 = bottomLeftCorner+size(img,1)*[cos(ThetaL) sin(ThetaL)];
+    end
+    
     bl2trLine = [bottomLeftCorner; p1];
     
-    p2 = bottomRightCorner+10000*[cos(ThetaR) sin(ThetaR)];
-    br2tlLine = [bottomRightCorner; p2];
+    ThetaR = (rightLine.theta+bottomLine.theta)*pi/360;
+    p1 = bottomRightCorner+size(img,1)*[cos(ThetaR) sin(ThetaR)];
+    
+    while(p1(1)>size(img,1) || p1(2)>size(img,2) || p1(1)<0 || p1(2)<0)
+        ThetaR = ThetaR+pi/2;
+        p1 = bottomRightCorner+size(img,1)*[cos(ThetaR) sin(ThetaR)];
+    end
+    
+    br2tlLine = [bottomRightCorner; p1];
+    
+     
     
     % Find intersections
     topLeftCorner = findLineIntersection([leftLine.point1;leftLine.point2],br2tlLine);
     topRightCorner = findLineIntersection([rightLine.point1;rightLine.point2],bl2trLine);
     
     corners = [bottomRightCorner; topRightCorner; bottomLeftCorner; topLeftCorner];
+    
+    plotFoundLines(img,corners); 
+    
     
 end
 
@@ -66,7 +82,6 @@ end
 function [leftcentroid, rightcentroid]=getBottomCorners(img)
 
     hsvImg = rgb2hsv(img);
-    
     leftmask = hsvImg(:,:,1)>0.35 & hsvImg(:,:,1)<0.40 & hsvImg(:,:,2)>0.5;
     rightmask = hsvImg(:,:,1)>0.95 & hsvImg(:,:,1)<1.00;
     
@@ -101,8 +116,35 @@ function point=findLineIntersection(line1, line2)
     a = (y1-y0)/(x1-x0);
     b = (y3-y2)/(x3-x2);
     
+    
     point(1) = (a*x0-b*x2-(y0-y2))/(a-b);
+    
     
     point(2) = y0+a*(point(1)-x0);
     
 end 
+
+
+function plotFoundLines(img,corners)
+
+   
+    figure, imshow(img), hold on;
+   
+    lines(:,:,1) = [corners(1,:); corners(2,:)];
+    lines(:,:,2) = [corners(1,:); corners(3,:)];
+    lines(:,:,3) = [corners(1,:); corners(4,:)];
+    lines(:,:,4) = [corners(3,:); corners(2,:)];
+    lines(:,:,5) = [corners(3,:); corners(4,:)];
+    lines(:,:,6) = [corners(2,:); corners(4,:)];
+   
+    
+    figure, imshow(img), hold on;
+    for i=1:6
+        line =lines(:,:,i);
+        plot(line(:,1),line(:,2),'LineWidth',3,'Color','green');
+        % Plot beginnings and ends of lines
+        plot(line(1,1),line(1,2),'x','LineWidth',2,'Color','yellow');
+        plot(line(2,1),line(2,2),'x','LineWidth',2,'Color','red');   
+    end
+
+end
