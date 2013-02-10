@@ -1,13 +1,12 @@
 function corners = getCorners(img,lines)
     
 
-    distanceThreshold = 1;
+    distanceThreshold = 10;
     nLines =  length(lines);
     [bottomLeftCorner, bottomRightCorner] = getBottomCorners(img);
     
     distancesFromBL = arrayfun(@(c)(distanceFromPointToLine(bottomLeftCorner,c)),lines);
     distancesFromBR = arrayfun(@(c)(distanceFromPointToLine(bottomRightCorner,c)),lines);
-    
     blLines = lines(distancesFromBL<distanceThreshold);
     brLines = lines(distancesFromBR<distanceThreshold);
     
@@ -45,9 +44,8 @@ function corners = getCorners(img,lines)
     end
     
     br2tlLine = [bottomRightCorner; p1];
-    
-     
-    
+   
+        
     % Find intersections
     topLeftCorner = findLineIntersection([leftLine.point1;leftLine.point2],br2tlLine);
     topRightCorner = findLineIntersection([rightLine.point1;rightLine.point2],bl2trLine);
@@ -75,26 +73,36 @@ function d = distanceFromPointToLine(point, line)
     l1 = [line.point1 0];
     l2 = [line.point2 0];
     
-    d = abs(cross(l2-l1,p-l1))/abs(l2-21);
+    d = norm(cross(l2-l1,p-l1),2)/norm(l2-l1,2);
 
 end
 
 function [leftcentroid, rightcentroid]=getBottomCorners(img)
 
     hsvImg = rgb2hsv(img);
-    leftmask = hsvImg(:,:,1)>0.35 & hsvImg(:,:,1)<0.40 & hsvImg(:,:,2)>0.5;
-    rightmask = hsvImg(:,:,1)>0.95 & hsvImg(:,:,1)<1.00;
+    leftmask = hsvImg(:,:,1)>0.45 & hsvImg(:,:,1)<0.55 & hsvImg(:,:,2)>0.5;
+    rightmask = hsvImg(:,:,1)>0.65 & hsvImg(:,:,1)<0.75 & hsvImg(:,:,2) < 0.2 & hsvImg(:,:,3)>0.55 & hsvImg(:,:,3)<0.65;
     
     leftcentroid = getCorner(leftmask);
     rightcentroid = getCorner(rightmask);
-
-
+    
 end
 
 function corner = getCorner(mask)
 
-    mask = imerode(mask,ones(7));
+    mask = bwlabel(mask);
+    pmask = mask;
+    while(size(unique(mask(mask > 0)),1) > 1)
+        mask = imerode(mask,ones(3));
+        if(size(unique(mask(mask > 0)),1) == 0)
+            mask = pmask; break;
+        end
+    end
+    mask =im2bw(mask);
+    
     center = regionprops(mask,'centroid');
+    
+   
     
     corner(1) = center(1).Centroid(1);
     corner(2) = center(1).Centroid(2);
@@ -102,6 +110,8 @@ end
 
 function point=findLineIntersection(line1, line2)
     
+line1
+line2
     x0 = line1(1,1);
     y0 = line1(1,2);
     x1 = line1(2,1);
@@ -113,14 +123,24 @@ function point=findLineIntersection(line1, line2)
     x3 = line2(2,1);
     y3 = line2(2,2);
     
-    a = (y1-y0)/(x1-x0);
-    b = (y3-y2)/(x3-x2);
+    if(x1==x0) 
+        x1=x0+1;
+    end
     
+    if(x3==x2) 
+        x3=x2+1;
+    end
+    a = (y1-y0)/(x1-x0);
+    a
+    
+    b = (y3-y2)/(x3-x2);
+    b
     
     point(1) = (a*x0-b*x2-(y0-y2))/(a-b);
     
     
     point(2) = y0+a*(point(1)-x0);
+    
     
 end 
 

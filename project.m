@@ -8,8 +8,8 @@ clc;
 % the image of a board we will use.
 angle = 0; % any angle to rotate board for testing
 % img = imread('image/supereasywithbluedot.jpg');
-img = imread('image/board.png');
-img = imresize(img, 0.5,'bilinear');
+img = imread('image/checkers/board_empty.png');
+img = imresize(img, 1,'bilinear');
 img = imrotate(img, angle);
 
 
@@ -23,7 +23,7 @@ lines = findLines(img);
 
  
 lines = removeSimilarLines(lines);
-% plotLines(img,lines);
+plotLines(img,lines);
 
 % imtool(img);
  
