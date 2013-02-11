@@ -24,9 +24,23 @@ function corners = getCorners(img,lines)
     rightLine = brLines((1-sum(equalityMatrix))==1);
     leftLine = blLines((1-sum(equalityMatrix,2))==1);
     
+    
     % plotLines(img,[bottomLine rightLine leftLine]);
     
     % Finds the mid angles (in radians)
+    
+    figure, imshow(img), hold on;
+    
+    %================
+%     line =[bottomLine.point1;bottomLine.point2];
+%     plot(line(:,1),line(:,2),'LineWidth',3,'Color','green');
+%     
+%     line =[rightLine.point1;rightLine.point2];
+%     plot(line(:,1),line(:,2),'LineWidth',3,'Color','green');
+%     
+%     line =[leftLine.point1;leftLine.point2];
+%     plot(line(:,1),line(:,2),'LineWidth',3,'Color','green');
+    %================
     
     ThetaL = (leftLine.theta+bottomLine.theta)*pi/360;
     p1 = bottomLeftCorner+size(img,1)*[cos(ThetaL) sin(ThetaL)];
@@ -38,28 +52,55 @@ function corners = getCorners(img,lines)
     
     bl2trLine = [bottomLeftCorner; p1];
     
-    %ThetaR = (rightLine.theta+bottomLine.theta)/2
     
     ThetaR = (rightLine.theta+bottomLine.theta)*pi/360;
     p1 = bottomRightCorner+size(img,1)*[cos(ThetaR) sin(ThetaR)];
     
     while(p1(1)>size(img,1) || p1(2)>size(img,2) || p1(1)<0 || p1(2)<0)
         ThetaR = ThetaR+pi/2;
+        
         p1 = bottomRightCorner+size(img,1)*[cos(ThetaR) sin(ThetaR)];
     end
     
     br2tlLine = [bottomRightCorner; p1];
    
+    %================
+%     line =bl2trLine;
+%     plot(line(:,1),line(:,2),'--r','LineWidth',3);
+%     
+%     line =br2tlLine;
+%     plot(line(:,1),line(:,2),'--r','LineWidth',3);
+    
+    %================
      
         
     % Find intersections
     topLeftCorner = findLineIntersection([leftLine.point1;leftLine.point2],br2tlLine);
     topRightCorner = findLineIntersection([rightLine.point1;rightLine.point2],bl2trLine);
     
+%     %=========
+%     line =[topLeftCorner;topRightCorner];
+%     plot(line(:,1),line(:,2),':r','LineWidth',2);
+    %================
+    
+    topLine = findClosestLineTo(lines,[topLeftCorner;topRightCorner]);
+    
+    
+    topLeftCorner = findLineIntersection([topLine.point1; topLine.point2],[leftLine.point1; leftLine.point2]);
+    topRightCorner = findLineIntersection([topLine.point1; topLine.point2],[rightLine.point1; rightLine.point2]);
+    
+    %=======================
+%     line =[topLeftCorner;topRightCorner];
+%     plot(line(:,1),line(:,2),'--b','LineWidth',3);
+%     
+%     plot(topLeftCorner(1),topLeftCorner(2),'oy','LineWidth',5);
+%     plot(topRightCorner(1),topRightCorner(2),'oy','LineWidth',5);
+    %========================
+    
     corners = [bottomRightCorner; topRightCorner; bottomLeftCorner; topLeftCorner];
     
     
-    plotFoundLines(img,corners); 
+    %plotFoundLines(img,corners); 
     
     
 end
@@ -68,10 +109,6 @@ function isit = isSameLine(line1,line2)
     
     isit = line1.rho==line2.rho && line1.theta==line2.theta;
     
-end
-
-function dist = getDistance(point1, point2)
-    dist = sqrt(sum((point1 - point2) .^ 2));
 end
 
 function d = distanceFromPointToLine(point, line)
@@ -83,6 +120,39 @@ function d = distanceFromPointToLine(point, line)
     d = norm(cross(l2-l1,p-l1),2)/norm(l2-l1,2);
 
 end
+
+function d = distanceFromPointToLine2(point, linePoints)
+
+    p  = [point 0];
+    l1 = [linePoints(1,:) 0];
+    l2 = [linePoints(2,:) 0];
+    
+    d = norm(cross(l2-l1,p-l1),2)/norm(l2-l1,2);
+
+end
+
+
+
+function closest_line = findClosestLineTo(lineVector, line)
+    
+    epsilonRho = 55;
+    epsilonTheta = 14;
+    
+    rho = distanceFromPointToLine2([0 0],line);
+    theta = tan((line(4)-line(2))/(line(3)-line(1)))*180/pi;
+    
+    i=1;
+    
+    while abs(lineVector(i).rho-rho)>epsilonRho || abs(lineVector(i).theta-theta)>epsilonTheta
+        i=i+1;
+    end
+    
+    lineVector(i).rho
+    lineVector(i).theta
+    
+    closest_line = lineVector(i);
+end
+
 
 function [leftcentroid, rightcentroid]=getBottomCorners(img)
 
@@ -155,19 +225,25 @@ function plotFoundLines(img,corners)
    
     lines(:,:,1) = [corners(1,:); corners(2,:)];
     lines(:,:,2) = [corners(1,:); corners(3,:)];
-    lines(:,:,3) = [corners(1,:); corners(4,:)];
-    lines(:,:,4) = [corners(3,:); corners(2,:)];
-    lines(:,:,5) = [corners(3,:); corners(4,:)];
+    lines(:,:,3) = [corners(2,:); corners(3,:)];
+    lines(:,:,4) = [corners(2,:); corners(3,:)];
+    lines(:,:,5) = [corners(1,:); corners(4,:)];
     lines(:,:,6) = [corners(2,:); corners(4,:)];
    
-    
     figure, imshow(img), hold on;
-    for i=1:6
+    for i=1:3
         line =lines(:,:,i);
         plot(line(:,1),line(:,2),'LineWidth',3,'Color','green');
-        % Plot beginnings and ends of lines
-        plot(line(1,1),line(1,2),'x','LineWidth',2,'Color','yellow');
-        plot(line(2,1),line(2,2),'x','LineWidth',2,'Color','red');   
     end
+    
+    for i=4:5
+        line =lines(:,:,i);
+        plot(line(:,1),line(:,2),'LineWidth',3,'Color','red');
+    end
+    
+    line =lines(:,:,6);
+    plot(line(:,1),line(:,2),'LineWidth',3,'Color','blue'); 
 
 end
+
+

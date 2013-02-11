@@ -5,17 +5,23 @@ function pieces = detectPieces(img, board,colors)
     
     locations = imgBW-boardBW;
     locations = normalize(locations);
+    % figure; imshow(locations);
+    
     
     locations = locations<10;
+    
+    
     locations = imerode(locations, ones(16));
-       
+    
+    % figure; imshow(locations);
+    
     center = regionprops(locations,'centroid');
     %center
     
     pieces = zeros(size(center,1),3);
     
     hsvImg = rgb2hsv(img);
-    imtool(hsvImg);
+    % imtool(hsvImg);
     
     for i=1:size(center,1)
         
@@ -23,7 +29,7 @@ function pieces = detectPieces(img, board,colors)
         
     end
     
-    imtool(locations);
+    % imtool(locations);
 
 end
 

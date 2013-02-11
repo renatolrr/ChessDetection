@@ -1,4 +1,4 @@
-function [new_image,new_corners] = recoverParrallelLines(img,points);
+function new_image = recoverParrallelLines(img,points);
     
     X = points;
     
@@ -29,9 +29,7 @@ function [new_image,new_corners] = recoverParrallelLines(img,points);
     
     R = makeresampler({'cubic','cubic'},'fill');
     new_image = imtransform(img,T,R, 'XData', [-20 532], 'YData', [-20 532]);
-    
-    
-    new_corners = p;    
+     
     
 end
 

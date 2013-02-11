@@ -24,12 +24,14 @@ lines = findLines(img);
 plotLines(img, lines);
 
 lines = removeSimilarLines(lines);
-% plotLines(img,lines);
+plotLines(img,lines);
 
 % imtool(img);
  
 corners = getCorners(img,lines);
-[img,corners] = recoverParrallelLines(img,corners);
+
+img= recoverParrallelLines(img,corners);
+% imtool(img);
 
 img = imrotate(img, 90);
 
