@@ -1,17 +1,16 @@
-function piece = detectPieceAt(coordinates,img,colors)
+function piece = detectPieceAt(coordinates,hsvImg,colors)
     
     x = floor(coordinates(1));
     y = floor(coordinates(2));
     
     
     % boxR = img(x-2:x+2,y-2:y+2,1);
-    boxS = img((x-2):(x+2),(y-2):(y+2),2);
+    boxS = hsvImg((y-2):(y+2),(x-2):(x+2),2);
     
-    boxS
     % boxB = img(x-2:x+2,y-2:y+2,3);
     
     % avgRed = mean(boxR(:));
-    avgSaturation = sum(boxS(:))/25
+    avgSaturation = sum(boxS(:))/25;
     % avgBlue = mean(boxB(:));
     
     % avgColor = [avgRed avgGreen avgBlue];
@@ -22,7 +21,7 @@ function piece = detectPieceAt(coordinates,img,colors)
     pieceR = getRow(y);
     pieceC = getColumn(x);
     
-    piece = [pieceT pieceR pieceC]
+    piece = [pieceT pieceR pieceC];
     
 end
 

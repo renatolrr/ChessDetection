@@ -15,6 +15,7 @@ function pieces = detectPieces(img, board,colors)
     pieces = zeros(size(center,1),3);
     
     hsvImg = rgb2hsv(img);
+    imtool(hsvImg);
     
     for i=1:size(center,1)
         

@@ -15,12 +15,7 @@ board  =imread('image/board_empty.png');
 colors = [0 0 0;
           190 60 20]; 
 
-
-imtool(rgb2hsv(img));
-
-
 lines = findLines(img);
-
  
 lines = removeSimilarLines(lines);
 % plotLines(img,lines);
@@ -29,7 +24,6 @@ lines = removeSimilarLines(lines);
  
 corners = getCorners(img,lines);
 [img,corners] = recoverParrallelLines(img,corners);
-
 
 pieces = detectPieces(img,board,colors);
 % imtool(img);
