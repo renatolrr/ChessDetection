@@ -15,11 +15,11 @@ black = pieces(:, 1) == 0;
 red = pieces(:, 1) == 1;
 
 % Explain this
-FENblack = (pieces(black, 2) - 1) * 4 + floor(pieces(black, 3)/2) + 1;
-FENred = (pieces(red, 2) - 1) * 4 + floor(pieces(red, 3)/2) + 1;
+FENblack = (pieces(black, 2) - 1) * 4 + floor(pieces(black, 3)/2);
+FENred = (pieces(red, 2) - 1) * 4 + floor(pieces(red, 3)/2);
 
 % Convert to FEN and copy to clipboard
-FEN = regexprep([turn ':W' num2str(FENred') ':B' num2str(FENblack') '.'], '  ', ',');
+FEN = regexprep([turn ':W' num2str(FENblack') ':B' num2str(FENred') '.'], '[\s]*', ',');
 clipboard('copy', FEN);
 
 end
