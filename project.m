@@ -11,7 +11,7 @@ angle = 0; % any angle to rotate board for testing
 img = imread(img);
 %img = imresize(img, 1,'bilinear');
 %img = imrotate(img, angle);
-img = camera();
+
 board  = imread('image/board_empty.png');
 board = imrotate(board,90);
 % imtool(board);
@@ -34,7 +34,7 @@ corners = getCorners(img,lines);
 img = imrotate(img, 90);
 
 pieces = detectPieces(img,board,colors);
-checkersToFEN(pieces, turn);
+checkersToFEN(pieces, 'B');
 system(['Checkerboard/checkerboard.exe ' clipboard('paste')]);
 
 % imtool(img);
