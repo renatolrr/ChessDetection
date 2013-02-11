@@ -1,7 +1,7 @@
 function corners = getCorners(img,lines)
     
 
-    distanceThreshold = 10;
+    distanceThreshold = 20;
     nLines =  length(lines);
     [bottomLeftCorner, bottomRightCorner] = getBottomCorners(img);
     
@@ -10,18 +10,21 @@ function corners = getCorners(img,lines)
     blLines = lines(distancesFromBL<distanceThreshold);
     brLines = lines(distancesFromBR<distanceThreshold);
     
+    % plotLines(img,brLines);
     % Checks which is the bottom line
     a = isSameLine(blLines(1),brLines(1));
     b = isSameLine(blLines(1),brLines(2));
     c = isSameLine(blLines(2),brLines(1));
     d = isSameLine(blLines(2),brLines(2));
     
-    lineMatrix = [blLines; brLines];
+    
     equalityMatrix = [a b; c d];
     
-    bottomLine = lineMatrix(equalityMatrix);
+    bottomLine = brLines((1-sum(equalityMatrix))==0);
     rightLine = brLines((1-sum(equalityMatrix))==1);
     leftLine = blLines((1-sum(equalityMatrix,2))==1);
+    
+    % plotLines(img,[bottomLine rightLine leftLine]);
     
     % Finds the mid angles (in radians)
     
@@ -35,6 +38,8 @@ function corners = getCorners(img,lines)
     
     bl2trLine = [bottomLeftCorner; p1];
     
+    %ThetaR = (rightLine.theta+bottomLine.theta)/2
+    
     ThetaR = (rightLine.theta+bottomLine.theta)*pi/360;
     p1 = bottomRightCorner+size(img,1)*[cos(ThetaR) sin(ThetaR)];
     
@@ -45,6 +50,7 @@ function corners = getCorners(img,lines)
     
     br2tlLine = [bottomRightCorner; p1];
    
+     
         
     % Find intersections
     topLeftCorner = findLineIntersection([leftLine.point1;leftLine.point2],br2tlLine);
@@ -52,7 +58,8 @@ function corners = getCorners(img,lines)
     
     corners = [bottomRightCorner; topRightCorner; bottomLeftCorner; topLeftCorner];
     
-    plotFoundLines(img,corners); 
+    
+    %plotFoundLines(img,corners); 
     
     
 end
@@ -100,9 +107,9 @@ function corner = getCorner(mask)
     end
     mask =im2bw(mask);
     
-    center = regionprops(mask,'centroid');
+    mask = imdilate(mask,ones(5));
     
-   
+    center = regionprops(mask,'centroid');
     
     corner(1) = center(1).Centroid(1);
     corner(2) = center(1).Centroid(2);
@@ -110,8 +117,6 @@ end
 
 function point=findLineIntersection(line1, line2)
     
-line1
-line2
     x0 = line1(1,1);
     y0 = line1(1,2);
     x1 = line1(2,1);
@@ -131,10 +136,8 @@ line2
         x3=x2+1;
     end
     a = (y1-y0)/(x1-x0);
-    a
     
     b = (y3-y2)/(x3-x2);
-    b
     
     point(1) = (a*x0-b*x2-(y0-y2))/(a-b);
     
