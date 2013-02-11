@@ -59,7 +59,7 @@ function corners = getCorners(img,lines)
     corners = [bottomRightCorner; topRightCorner; bottomLeftCorner; topLeftCorner];
     
     
-    %plotFoundLines(img,corners); 
+    plotFoundLines(img,corners); 
     
     
 end
