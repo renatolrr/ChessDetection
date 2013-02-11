@@ -7,7 +7,7 @@ function pieces = detectPieces(img, board,colors)
     locations = normalize(locations);
     
     locations = locations<10;
-    locations = imerode(locations, ones(11));
+    locations = imerode(locations, ones(16));
        
     center = regionprops(locations,'centroid');
     %center

@@ -1,4 +1,4 @@
-clear;
+function project(img, turn);
 clc;
 
 % Step #1: Edge Detection
@@ -8,15 +8,21 @@ clc;
 % the image of a board we will use.
 angle = 0; % any angle to rotate board for testing
 % img = imread('image/supereasywithbluedot.jpg');
-img = imread('image/checkers/checkersTest.png');
+img = imread(img);
 %img = imresize(img, 1,'bilinear');
 %img = imrotate(img, angle);
+
 board  = imread('image/board_empty.png');
+board = imrotate(board,90);
+% imtool(board);
 colors = [0 0 0;
           190 60 20]; 
+% imtool(img)
 
 lines = findLines(img);
- 
+
+plotLines(img, lines);
+
 lines = removeSimilarLines(lines);
 % plotLines(img,lines);
 
@@ -25,5 +31,10 @@ lines = removeSimilarLines(lines);
 corners = getCorners(img,lines);
 [img,corners] = recoverParrallelLines(img,corners);
 
+img = imrotate(img, 90);
+
 pieces = detectPieces(img,board,colors);
+checkersToFEN(pieces, 'B');
+system(['Checkerboard/checkerboard.exe ' clipboard('paste')]);
+
 % imtool(img);
