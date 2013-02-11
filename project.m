@@ -12,7 +12,7 @@ img = imread(img);
 %img = imresize(img, 1,'bilinear');
 %img = imrotate(img, angle);
 
-board  = imread('image/board_empty.png');
+board  = imread('board_empty.png');
 board = imrotate(board,90);
 % imtool(board);
 colors = [0 0 0;
@@ -21,7 +21,7 @@ colors = [0 0 0;
 
 lines = findLines(img);
 
-plotLines(img, lines);
+% plotLines(img, lines);
 
 lines = removeSimilarLines(lines);
 plotLines(img,lines);
@@ -36,7 +36,5 @@ img= recoverParrallelLines(img,corners);
 img = imrotate(img, 90);
 
 pieces = detectPieces(img,board,colors);
-checkersToFEN(pieces, 'B');
+checkersToFEN(pieces, turn);
 system(['Checkerboard/checkerboard.exe ' clipboard('paste')]);
-
-% imtool(img);
