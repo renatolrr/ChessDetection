@@ -22,9 +22,6 @@ function pieces = detectPieces(img, board,colors)
         
     end
     
-    
-    
-    
     imtool(locations);
 
 end

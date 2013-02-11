@@ -11,7 +11,7 @@ angle = 0; % any angle to rotate board for testing
 img = imread('image/checkers/board8.png');
 %img = imresize(img, 1,'bilinear');
 %img = imrotate(img, angle);
-board  =imread('image/board_empty.png');
+board  = imread('image/board.png');
 colors = [0 0 0;
           190 60 20]; 
 
